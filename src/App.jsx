@@ -104,8 +104,7 @@ function App() {
               </button>
             </div>
             <div className="hint">
-              Dev: API runs at <code>http://localhost:3000</code> and Vite proxies{' '}
-              <code>/bfhl</code>.
+              API base: <code>{import.meta.env.VITE_API_URL || '(dev proxy)'}</code>
             </div>
           </form>
 

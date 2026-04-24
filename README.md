@@ -4,6 +4,11 @@ This repo contains:
 - **Backend API**: Express server implementing `POST /bfhl` per the challenge rules
 - **Frontend SPA**: React (Vite) UI to submit edges and view the response
 
+## Live deployment
+
+- **Backend (Render)**: `https://bajaj-project-2aq9.onrender.com`
+- **Frontend (Vercel)**: `https://bajaj-project-sable.vercel.app/`
+
 ## Local setup
 
 ### Backend (API)
@@ -30,7 +35,7 @@ Frontend runs on `http://localhost:5173` and proxies `/bfhl` to `http://localhos
 ## Production setup (important)
 
 In production, the Vite proxy does not apply. Set:
-- `VITE_API_URL` to your hosted backend base URL (example: `https://your-api.onrender.com`)
+- `VITE_API_URL` to your hosted backend base URL (example: `https://bajaj-project-2aq9.onrender.com`)
 
 See `.env.example`.
 
@@ -43,7 +48,7 @@ See `.env.example`.
    - **Runtime**: Node
    - **Build Command**: `npm install`
    - **Start Command**: `npm start`
-4. Deploy. Your API base URL will look like `https://xxxx.onrender.com`
+4. Deploy. Your API base URL will look like `https://xxxx.onrender.com` (example: `https://bajaj-project-2aq9.onrender.com`)
 
 Check:
 - `GET <api-url>/health`
@@ -57,7 +62,7 @@ Check:
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 3. Add environment variable:
-   - `VITE_API_URL` = `https://xxxx.onrender.com` (your backend URL)
+   - `VITE_API_URL` = `https://bajaj-project-2aq9.onrender.com` (your backend URL)
 4. Deploy.
 
 ## Required identity fields
