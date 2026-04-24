@@ -62,7 +62,7 @@ Check:
    - **Build Command**: `npm run build`
    - **Output Directory**: `dist`
 3. Add environment variable:
-   - `VITE_API_URL` = `https://bajaj-project-2aq9.onrender.com` (your backend URL)
+   - `VITE_API_URL` = `https://bajaj-project-2aq9.onrender.com` 
 4. Deploy.
 
 ## Required identity fields
