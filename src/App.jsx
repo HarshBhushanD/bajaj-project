@@ -65,7 +65,7 @@ function App() {
       <div className="bfhl">
         <header className="bfhl-header">
           <div>
-            <h1>SRM BFHL Hierarchy API</h1>
+            <h1>SRM BFHL Hierarchy API by Harsh Bhushan Dixit</h1>
             <p className="muted">
               Paste edges (one per line) and submit to <code>POST /bfhl</code>.
             </p>
