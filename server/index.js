@@ -95,6 +95,7 @@ function processEdges(input) {
   const indegree = new Map(); // node -> number
   const allNodes = new Set();
   const undirectedAdj = new Map(); // node -> Set(neighbors)
+  const firstSeen = new Map(); // node -> first accepted edge index
 
   const addUndirected = (a, b) => {
     if (!undirectedAdj.has(a)) undirectedAdj.set(a, new Set());
@@ -104,9 +105,10 @@ function processEdges(input) {
   };
 
   const incIndegree = (n) => indegree.set(n, (indegree.get(n) ?? 0) + 1);
-  const ensureNode = (n) => {
+  const ensureNode = (n, idx) => {
     allNodes.add(n);
     if (!indegree.has(n)) indegree.set(n, indegree.get(n) ?? 0);
+    if (!firstSeen.has(n) && typeof idx === "number") firstSeen.set(n, idx);
   };
 
   const data = Array.isArray(input?.data) ? input.data : null;
@@ -119,7 +121,8 @@ function processEdges(input) {
     };
   }
 
-  for (const raw of data) {
+  for (let i = 0; i < data.length; i += 1) {
+    const raw = data[i];
     const trimmed = String(raw ?? "").trim();
 
     if (!trimmed || !isValidEdgeString(trimmed)) {
@@ -148,8 +151,8 @@ function processEdges(input) {
     if (parentByChild.has(child)) continue;
     parentByChild.set(child, parent);
 
-    ensureNode(parent);
-    ensureNode(child);
+    ensureNode(parent, i);
+    ensureNode(child, i);
     incIndegree(child);
 
     if (!childrenByParent.has(parent)) childrenByParent.set(parent, new Set());
@@ -162,13 +165,29 @@ function processEdges(input) {
     [...childrenByParent.entries()].map(([p, set]) => [p, [...set]])
   );
 
-  const nodesArr = [...allNodes].sort();
-  const comps = getComponents(nodesArr, undirectedAdj);
+  // Preserve component order based on first appearance in accepted edges
+  const nodesArr = [...allNodes].sort((a, b) => {
+    const oa = firstSeen.get(a) ?? Number.MAX_SAFE_INTEGER;
+    const ob = firstSeen.get(b) ?? Number.MAX_SAFE_INTEGER;
+    if (oa !== ob) return oa - ob;
+    return a.localeCompare(b);
+  });
+  const comps = getComponents(nodesArr, undirectedAdj)
+    .map((comp) => {
+      let order = Number.MAX_SAFE_INTEGER;
+      for (const n of comp) order = Math.min(order, firstSeen.get(n) ?? order);
+      return { comp, order };
+    })
+    .sort((a, b) => {
+      if (a.order !== b.order) return a.order - b.order;
+      // tie-breaker for stability
+      return (a.comp[0] ?? "").localeCompare(b.comp[0] ?? "");
+    });
 
   const hierarchies = [];
   let total_cycles = 0;
 
-  for (const comp of comps) {
+  for (const { comp, order } of comps) {
     const hasCycle = detectCycleInComponent(comp, childrenByParentArr);
 
     const roots = comp.filter((n) => (indegree.get(n) ?? 0) === 0).sort();
@@ -178,6 +197,7 @@ function processEdges(input) {
     if (hasCycle) {
       total_cycles += 1;
       hierarchies.push({
+        _order: order,
         root: cycleRoot,
         tree: {},
         has_cycle: true,
@@ -188,12 +208,21 @@ function processEdges(input) {
     for (const root of roots.length ? roots : [fallbackRoot]) {
       if (!root) continue;
       hierarchies.push({
+        _order: order,
         root,
         tree: buildNestedTree(root, childrenByParentArr),
         depth: computeDepth(root, childrenByParentArr),
       });
     }
   }
+
+  hierarchies.sort((a, b) => {
+    const oa = a._order ?? Number.MAX_SAFE_INTEGER;
+    const ob = b._order ?? Number.MAX_SAFE_INTEGER;
+    if (oa !== ob) return oa - ob;
+    return a.root.localeCompare(b.root);
+  });
+  for (const h of hierarchies) delete h._order;
 
   const nonCyclic = hierarchies.filter((h) => !h.has_cycle);
   let largest_tree_root = "";
